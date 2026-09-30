@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Top Estampas - Contabilidade Prática</title>
+  <style>
+    :root {
+      --primary: #004a8f;
+      --secondary: #f68b20;
+      --light-bg: #f8f9fa;
+      --border: #cfd8dc;
+      --text: #263238;
+      --success: #2e7d32;
+      --danger: #c62828;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #eceff1; color: var(--text); padding: 20px; line-height: 1.5; }
+    .container { max-width: 860px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    h1 { color: var(--primary); font-size: 1.6rem; margin-bottom: 10px; }
+    h2 { color: var(--primary); font-size: 1.2rem; margin: 20px 0 10px; border-left: 4px solid var(--secondary); padding-left: 8px; }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.95rem; }
+    input[type="text"], input[type="number"], select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 1rem; }
+    .btn { background: var(--secondary); color: white; border: none; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 10px; }
+    .btn:hover { background: #e07b19; }
+    .btn-primary { background: var(--primary); }
+    .btn-primary:hover { background: #003366; }
+    .transaction-card { background: var(--light-bg); border-left: 4px solid var(--primary); padding: 12px; margin-bottom: 8px; border-radius: 4px; font-size: 0.9rem; }
+    .grid-razonetes { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 15px; margin-top: 15px; }
+    .t-card { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+    .t-title { background: var(--primary); color: white; text-align: center; padding: 8px; font-weight: bold; }
+    .t-header { display: flex; justify-content: space-between; background: #eceff1; padding: 4px 10px; font-size: 0.8rem; font-weight: bold; border-bottom: 2px solid #333; }
+    .t-body { display: flex; }
+    .t-side { flex: 1; padding: 8px; }
+    .t-side.debit { border-right: 2px solid #333; }
+    .t-row { display: flex; align-items: center; margin-bottom: 4px; }
+    .t-row span { font-size: 0.8rem; color: #555; width: 25px; }
+    .t-row input { text-align: right; padding: 4px; }
+    .t-footer { background: #fafafa; padding: 8px; border-top: 2px solid #333; }
+    .btn-calc { background: #607d8b; color: white; border: none; padding: 6px; width: 100%; border-radius: 3px; font-size: 0.8rem; cursor: pointer; margin-bottom: 6px; }
+    .saldo-display { display: flex; justify-content: space-between; font-weight: bold; font-size: 0.9rem; }
+    .saldo-display input { width: 110px; font-weight: bold; text-align: right; }
+    .eq-box { background: #e8f5e9; border: 1px solid var(--success); padding: 15px; border-radius: 6px; margin-top: 20px; text-align: center; }
+    .eq-fields { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .loading { display: none; text-align: center; font-weight: bold; color: var(--primary); margin-top: 12px; }
+    .sucesso-box { display: none; background: #e8f5e9; border: 2px solid var(--success); border-radius: 6px; padding: 20px; text-align: center; margin-top: 20px; }
+    .sucesso-box h3 { color: var(--success); margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- TELA 1: ENTRADA (REGISTO DE PRESENÇA) -->
+  <div id="step-login" class="screen active">
+    <h1>Top Estampas - Identificação</h1>
+    <p>Insira os seus dados de identificação para registar a presença e iniciar a atividade prática.</p>
+    
+    <div style="margin-top: 20px;">
+      <div class="form-group">
+        <label for="student-name">Nome Completo do Aluno:</label>
+        <input type="text" id="student-name" placeholder="Ex.: Ana Clara Silva" required>
+      </div>
+      <div class="form-group">
+        <label for="student-class">Turma:</label>
+        <select id="student-class" required>
+          <option value="">Selecione a turma...</option>
+          <option value="2A">2º Ano A</option>
+          <option value="2B">2º Ano B</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="startExercise()">Registar Presença e Iniciar</button>
+    </div>
+  </div>
+
+  <!-- TELA 2: EXERCÍCIO -->
+  <div id="step-quiz" class="screen">
+    <div style="display:flex; justify-content:space-between; border-bottom:1px solid #ccc; padding-bottom:8px;">
+      <div><strong>Estudante:</strong> <span id="lbl-name"></span></div>
+      <div><strong>Turma:</strong> <span id="lbl-class"></span></div>
+    </div>
+
+    <h2>Transações da Loja "Top Estampas"</h2>
+    <div class="transaction-card"><strong>(1) Abertura:</strong> Sócios investem <strong>R$ 1.000,00</strong> em dinheiro vivo (Capital Social).</div>
+    <div class="transaction-card"><strong>(2) Máquina de Estampar:</strong> Compra de máquina por <strong>R$ 300,00</strong> paga à vista em dinheiro.</div>
+    <div class="transaction-card"><strong>(3) Matéria-Prima:</strong> Compra de tintas e tecidos por <strong>R$ 200,00</strong> a prazo (Fornecedores).</div>
+    <div class="transaction-card"><strong>(4) Pagamento de Dívida:</strong> Pagamento de <strong>R$ 100,00</strong> da dívida ao fornecedor usando dinheiro do caixa.</div>
+
+    <h2>Razonetes (Contas em T)</h2>
+    <div class="grid-razonetes">
+      
+      <!-- Caixa -->
+      <div class="t-card">
+        <div class="t-title">Caixa (Ativo)</div>
+        <div class="t-header"><span>DÉBITO (+)</span><span>CRÉDITO (-)</span></div>
+        <div class="t-body">
+          <div class="t-side debit">
+            <div class="t-row"><span>(1)</span><input type="number" id="cx-d1" placeholder="0"></div>
+            <div class="t-row"><span>( )</span><input type="number" id="cx-d2" placeholder="0"></div>
+          </div>
+          <div class="t-side credit">
+            <div class="t-row"><span>(2)</span><input type="number" id="cx-c1" placeholder="0"></div>
+            <div class="t-row"><span>(4)</span><input type="number" id="cx-c2" placeholder="0"></div>
+          </div>
+        </div>
+        <div class="t-footer">
+          <button class="btn-calc" onclick="calcAccount('cx', 'ativo')">Calcular Saldo Final (D - C)</button>
+          <div class="saldo-display"><span>Saldo:</span><span>R$ <input type="number" id="cx-saldo" readonly></span></div>
+        </div>
+      </div>
+
+      <!-- Capital Social -->
+      <div class="t-card">
+        <div class="t-title">Capital Social (PL)</div>
+        <div class="t-header"><span>DÉBITO (-)</span><span>CRÉDITO (+)</span></div>
+        <div class="t-body">
+          <div class="t-side debit">
+            <div class="t-row"><span>( )</span><input type="number" id="pl-d1" placeholder="0"></div>
+          </div>
+          <div class="t-side credit">
+            <div class="t-row"><span>(1)</span><input type="number" id="pl-c1" placeholder="0"></div>
+          </div>
+        </div>
+        <div class="t-footer">
+          <button class="btn-calc" onclick="calcAccount('pl', 'passivo')">Calcular Saldo Final (C - D)</button>
+          <div class="saldo-display"><span>Saldo:</span><span>R$ <input type="number" id="pl-saldo" readonly></span></div>
+        </div>
+      </div>
+
+      <!-- Equipamentos e Estoques -->
+      <div class="t-card">
+        <div class="t-title">Equipamentos / Estoques (Ativo)</div>
+        <div class="t-header"><span>DÉBITO (+)</span><span>CRÉDITO (-)</span></div>
+        <div class="t-body">
+          <div class="t-side debit">
+            <div class="t-row"><span>(2)</span><input type="number" id="eq-d1" placeholder="0"></div>
+            <div class="t-row"><span>(3)</span><input type="number" id="eq-d2" placeholder="0"></div>
+          </div>
+          <div class="t-side credit">
+            <div class="t-row"><span>( )</span><input type="number" id="eq-c1" placeholder="0"></div>
+          </div>
+        </div>
+        <div class="t-footer">
+          <button class="btn-calc" onclick="calcAccount('eq', 'ativo')">Calcular Saldo Final (D - C)</button>
+          <div class="saldo-display"><span>Saldo:</span><span>R$ <input type="number" id="eq-saldo" readonly></span></div>
+        </div>
+      </div>
+
+      <!-- Fornecedores -->
+      <div class="t-card">
+        <div class="t-title">Fornecedores (Passivo)</div>
+        <div class="t-header"><span>DÉBITO (-)</span><span>CRÉDITO (+)</span></div>
+        <div class="t-body">
+          <div class="t-side debit">
+            <div class="t-row"><span>(4)</span><input type="number" id="fn-d1" placeholder="0"></div>
+          </div>
+          <div class="t-side credit">
+            <div class="t-row"><span>(3)</span><input type="number" id="fn-c1" placeholder="0"></div>
+          </div>
+        </div>
+        <div class="t-footer">
+          <button class="btn-calc" onclick="calcAccount('fn', 'passivo')">Calcular Saldo Final (C - D)</button>
+          <div class="saldo-display"><span>Saldo:</span><span>R$ <input type="number" id="fn-saldo" readonly></span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Equação Fundamental -->
+    <div class="eq-box">
+      <strong>Equação Fundamental do Patrimônio</strong>
+      <p style="font-size:0.85rem; margin-top:4px;">Preencha os valores consolidados finais:</p>
+      <div class="eq-fields">
+        <div><label>Total Ativo</label><input type="number" id="total-ativo" style="width:110px;"></div>
+        <span style="font-size:1.4rem; font-weight:bold; margin-top:20px;">=</span>
+        <div><label>Total Passivo</label><input type="number" id="total-passivo" style="width:110px;"></div>
+        <span style="font-size:1.4rem; font-weight:bold; margin-top:20px;">+</span>
+        <div><label>Total PL</label><input type="number" id="total-pl" style="width:110px;"></div>
+      </div>
+    </div>
+
+    <button class="btn" id="btn-enviar" onclick="submitWork()">Enviar Resposta para a Professora</button>
+    <div id="loading-msg" class="loading">A enviar resposta para a folha de cálculo... Aguarde um momento.</div>
+
+    <!-- Mensagem de Confirmação Final -->
+    <div id="sucesso-container" class="sucesso-box">
+      <h3>Resposta Enviada com Sucesso!</h3>
+      <p id="feedback-mensagem"></p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let sessionData = {};
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbynao-gKLrZXoHm6JZNMyVsbuDvFAcfLfUNFymA4vDnHskdA-dHCsKvTPApwBrhzHG5Vw/exec";
+
+  function startExercise() {
+    const name = document.getElementById('student-name').value.trim();
+    const studentClass = document.getElementById('student-class').value;
+
+    if (!name || !studentClass) {
+      alert("Por favor, preencha o Nome e selecione a Turma antes de iniciar.");
+      return;
+    }
+
+    sessionData = { nome: name, turma: studentClass };
+
+    document.getElementById('lbl-name').innerText = sessionData.nome;
+    document.getElementById('lbl-class').innerText = sessionData.turma;
+
+    document.getElementById('step-login').classList.remove('active');
+    document.getElementById('step-quiz').classList.add('active');
+  }
+
+  function calcAccount(prefix, type) {
+    let d1 = Number(document.getElementById(`${prefix}-d1`)?.value) || 0;
+    let d2 = Number(document.getElementById(`${prefix}-d2`)?.value) || 0;
+    let c1 = Number(document.getElementById(`${prefix}-c1`)?.value) || 0;
+    let c2 = Number(document.getElementById(`${prefix}-c2`)?.value) || 0;
+
+    let somaD = d1 + d2;
+    let somaC = c1 + c2;
+    let saldo = (type === 'ativo') ? (somaD - somaC) : (somaC - somaD);
+
+    document.getElementById(`${prefix}-saldo`).value = saldo;
+  }
+
+  function submitWork() {
+    const cx = Number(document.getElementById('cx-saldo').value);
+    const pl = Number(document.getElementById('pl-saldo').value);
+    const eq = Number(document.getElementById('eq-saldo').value);
+    const fn = Number(document.getElementById('fn-saldo').value);
+
+    const atv = Number(document.getElementById('total-ativo').value);
+    const pas = Number(document.getElementById('total-passivo').value);
+    const pat = Number(document.getElementById('total-pl').value);
+
+    // Verificação com o Gabarito Oficial
+    const razonetesOk = (cx === 600 && pl === 1000 && eq === 500 && fn === 100);
+    const equacaoOk = (atv === 1100 && pas === 100 && pat === 1000);
+
+    const statusFinal = (razonetesOk && equacaoOk) ? "CORRETO (100%)" : "INCORRETO / REVISAR";
+    const detalhes = `Caixa=${cx}, PL=${pl}, Equip=${eq}, Fornec=${fn} | Ativo=${atv}, Passivo=${pas}, PL=${pat}`;
+
+    document.getElementById('btn-enviar').style.display = 'none';
+    document.getElementById('loading-msg').style.display = 'block';
+
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nome: sessionData.nome,
+        turma: sessionData.turma,
+        status: statusFinal,
+        detalhes: detalhes
+      })
+    }).then(() => {
+      document.getElementById('loading-msg').style.display = 'none';
+      
+      const msgBox = document.getElementById('feedback-mensagem');
+      if (razonetesOk && equacaoOk) {
+        msgBox.innerHTML = `<strong>Parabéns, ${sessionData.nome}!</strong> O seu exercício foi corrigido e está <strong>100% CORRETO</strong>. A sua presença e nota já foram registadas na pauta da professora.`;
+      } else {
+        msgBox.innerHTML = `<strong>Atenção, ${sessionData.nome}!</strong> A sua resposta foi registada na pauta, mas foram identificadas <strong>incorreções nos saldos ou na equação patrimonial</strong>.`;
+      }
+
+      document.getElementById('sucesso-container').style.display = 'block';
+      document.getElementById('sucesso-container').scrollIntoView({ behavior: 'smooth' });
+    }).catch(err => {
+      document.getElementById('loading-msg').style.display = 'none';
+      document.getElementById('btn-enviar').style.display = 'block';
+      alert("Ocorreu um erro ao enviar os dados. Verifique a ligação à internet e tente novamente.");
+    });
+  }
+</script>
+
+</body>
+</html>
